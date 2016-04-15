@@ -1,0 +1,11 @@
+{
+  "name": "spartannash/gmaps",
+  "autoload": {
+    "classmap": [
+      "src"
+    ],
+    "psr-4" : {
+      "HolidayLibrary" : "src/"
+    }
+  }
+}
