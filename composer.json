@@ -5,7 +5,7 @@
       "src"
     ],
     "psr-4" : {
-      "HolidayLibrary" : "src/"
+      "Gmaps" : "src/"
     }
   }
 }
