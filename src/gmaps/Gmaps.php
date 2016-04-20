@@ -9,15 +9,15 @@ class Gmaps
     private $data = [];
     
     public function __construct($config) {
-
+        // Get config data and assign it to $data
         $this->data['config'] = $config;
     }
-    public function render($lat1, $long1, $lat2, $long2) {
 
-        $this->data['lat1'] = $lat1;
-        $this->data['long1'] = $long1;
-        $this->data['lat2'] = $lat2;
-        $this->data['long2'] = $long2;
+    // Return the html rendered from gmaps.blade.php with the $data array
+    public function render($latlng, $map_num) {
+
+        $this->data['latlng'] = $latlng;
+        $this->data['map_num'] = $map_num;
 
         return View::make('gmaps::gmaps')->with($this->data)->render();
     }
