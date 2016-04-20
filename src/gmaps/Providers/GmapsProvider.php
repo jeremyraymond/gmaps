@@ -20,6 +20,8 @@ class GmapsProvider extends ServiceProvider {
         // Running 'php artisan vendor:publish' will publish the view and config files to the application for app-specific editing by the dev
         $this->publishes([
             __DIR__.'/../config/gmapsconfig.php' => $this->app->basePath() . '/config/gmapsconfig.php',
+            __DIR__.'/../resources/assets/js/gmaps.js' => $this->app->basePath() . '/resources/assets/scripts/partials/gmaps.js',
+
         ]);
 
     }
