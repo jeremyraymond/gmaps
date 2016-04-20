@@ -18,15 +18,34 @@ function initialize(data) {
     // Attach the map object to the data on the element so other js files can use it
     $('#' + mapId).data("mapObject", map);
 
-    // Create the Markers
-    var marker1=new google.maps.Marker({
-        position:latlngobj1,
-        map: map
-    });
-    var marker2=new google.maps.Marker({
-        position:latlngobj2,
-        map: map
-    });
+    if(!data.configHome_marker) {
+
+        var marker1=new google.maps.Marker({
+            position:latlngobj1,
+            map: map
+        });
+    } else {
+
+        var marker1=new google.maps.Marker({
+            position:latlngobj1,
+            icon: data.configHome_marker,
+            map: map
+        });
+    }
+    if(!data.configDest_marker) {
+
+        var marker2 = new google.maps.Marker({
+            position: latlngobj2,
+            map: map
+        });
+    } else {
+
+        var marker2 = new google.maps.Marker({
+            position: latlngobj2,
+            icon: data.configDest_marker,
+            map: map
+        });
+    }
 
     // Set the bounds and auto zoom
     var latlngbounds = new google.maps.LatLngBounds();
