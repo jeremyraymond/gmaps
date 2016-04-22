@@ -1,3 +1,3 @@
-<div id="{{ $config['base_id'] }}{{ $map_num }}" class="gmap" data-base_id="{{ $config['base_id'] }}" data-map_num="{{ $map_num }}" data-config-key="{{ $config['key'] }}" data-config-home_marker="{{ $config['home_marker'] }}" data-config-dest_marker="{{ $config['dest_marker'] }}" data-latlng-lat1="{{ $latlng['lat1'] }}" data-latlng-lng1="{{ $latlng['lng1'] }}" data-latlng-lat2="{{ $latlng['lat2'] }}" data-latlng-lng2="{{ $latlng['lng2'] }}">
+<div id="{{ $config['base_id'] }}{{ $map_num }}" class="gmap" data-base_id="{{ $config['base_id'] }}" data-map_num="{{ $map_num }}" data-config-key="{{ $config['key'] }}" data-config-zoom="{{ $config['zoom'] }}" data-config-home_marker="{{ $config['home_marker'] }}" data-config-dest_marker="{{ $config['dest_marker'] }}" data-latlng-lat1="{{ $latlng['lat1'] }}" data-latlng-lng1="{{ $latlng['lng1'] }}" data-latlng-lat2="{{ $latlng['lat2'] }}" data-latlng-lng2="{{ $latlng['lng2'] }}">
 
 </div>
