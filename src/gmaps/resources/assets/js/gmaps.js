@@ -1,9 +1,7 @@
 
-function initialize(data) {
+function gmapsInitialize(data) {
 
-    // For creating Markers
-    var latlngobj1 = new google.maps.LatLng(data.latlngLat1, data.latlngLng1);
-    var latlngobj2 = new google.maps.LatLng(data.latlngLat2, data.latlngLng2);
+    // Generate the mapId
     var mapId = data.base_id + data.map_num;
 
     // For creating the map
@@ -18,41 +16,76 @@ function initialize(data) {
     // Attach the map object to the data on the element so other js files can use it
     $('#' + mapId).data("mapObject", map);
 
-    if(!data.configHome_marker) {
+    // If the origin set of coordinates exist, set the marker
+    var marker1;
+    var latlngobj1;
+    if(data.latlngLat1 && data.latlngLng1) {
+        latlngobj1 = new google.maps.LatLng(data.latlngLat1, data.latlngLng1);
+        // If no custom icon is specified for origin (home) marker
+        if (!data.configHome_marker) {
+            marker1 = new google.maps.Marker({
+                position: latlngobj1,
+                map: map
+            });
+        }
+        // If there is a custom icon specified in the configs for origin (home) marker
+        else {
+            marker1 = new google.maps.Marker({
+                position: latlngobj1,
+                icon: data.configHome_marker,
+                map: map
+            });
+        }
+    } // endif
 
-        var marker1=new google.maps.Marker({
-            position:latlngobj1,
-            map: map
-        });
-    } else {
-
-        var marker1=new google.maps.Marker({
-            position:latlngobj1,
-            icon: data.configHome_marker,
-            map: map
-        });
+    // If the destination set of coordinates exist, set the marker
+    var marker2;
+    var latlngobj2;
+    if(data.latlngLat2 && data.latlngLng2) {
+        latlngobj2 = new google.maps.LatLng(data.latlngLat2, data.latlngLng2);
+        // If no custom icon is specified for destination marker
+        if (!data.configDest_marker) {
+            marker2 = new google.maps.Marker({
+                position: latlngobj2,
+                map: map
+            });
+        }
+        // If there is a custom icon specified in the configs for destination marker
+        else {
+            marker2 = new google.maps.Marker({
+                position: latlngobj2,
+                icon: data.configDest_marker,
+                map: map
+            });
+        }
     }
-    if(!data.configDest_marker) {
+    // Resize the map in case the size has changed.
+    // This is useful for things like accordions and modals
+    google.maps.event.trigger(map, 'resize');
 
-        var marker2 = new google.maps.Marker({
-            position: latlngobj2,
-            map: map
-        });
-    } else {
+    // If two markers exist, set the bounds to focus on them
+    if(latlngobj1 && latlngobj2) {
+        // Set the bounds and auto zoom
+        var latlngbounds = new google.maps.LatLngBounds();
+        latlngbounds.extend(latlngobj1);
+        latlngbounds.extend(latlngobj2);
 
-        var marker2 = new google.maps.Marker({
-            position: latlngobj2,
-            icon: data.configDest_marker,
-            map: map
-        });
+        map.fitBounds(latlngbounds);
     }
-
-    // Set the bounds and auto zoom
-    var latlngbounds = new google.maps.LatLngBounds();
-    latlngbounds.extend(latlngobj1);
-    latlngbounds.extend(latlngobj2);
-
-    map.fitBounds(latlngbounds);
+    // Else one or no map markers exist, center the map on the one that does, or on the United States
+    else {
+        if(latlngobj1) {
+            map.setCenter(marker1.getPosition());
+        }
+        else if(latlngobj2) {
+            map.setCenter(latlngobj2);
+            map.setZoom(data.configZoom);
+        }
+        else {
+            map.setCenter(new google.maps.LatLng(41.850033, -87.6500523));
+            map.setZoom(3);
+        }
+    }
 
 }
 
@@ -66,14 +99,14 @@ var scriptPromise = $.ajax({
     url: "https://maps.googleapis.com/maps/api/js?key=" + configKey,
     dataType: "script",
     cache: true,
-    error: function() { console.log("ajax failure") }
+    error: function() { console.log("ajax failure"); }
 });
 // On promise completion, loop through each map element and call the initialize function with data as the param
 scriptPromise.done(function() {
 
     gmaps.each(function() {
         var data = $(this).data();
-        initialize(data)
+        gmapsInitialize(data);
     });
 });
-scriptPromise.fail(function(){ console.log("Google maps API failed to load") });
+scriptPromise.fail(function(){ console.log("Google maps API failed to load"); });
