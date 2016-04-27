@@ -22,7 +22,7 @@ function gmapsInitialize(data) {
     if(data.latlngLat1 && data.latlngLng1) {
         latlngobj1 = new google.maps.LatLng(data.latlngLat1, data.latlngLng1);
         // If no custom icon is specified for origin (home) marker
-        if (!data.configHome_marker) {
+        if (!data.configOrigin_marker_url) {
             marker1 = new google.maps.Marker({
                 position: latlngobj1,
                 map: map
@@ -30,9 +30,17 @@ function gmapsInitialize(data) {
         }
         // If there is a custom icon specified in the configs for origin (home) marker
         else {
+            console.log(data.configOrigin_marker_url + " " + Math.ceil(data.configOrigin_marker_horiz_size / 2) + " " + data.configOrigin_marker_vert_size);
+            var image = {
+                url: data.configOrigin_marker_url,
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(Math.ceil(data.configOrigin_marker_horiz_size / 2), data.configOrigin_marker_vert_size),
+                scaledSize: new google.maps.Size(data.configOrigin_marker_horiz_size, data.configOrigin_marker_vert_size)
+            };
+
             marker1 = new google.maps.Marker({
                 position: latlngobj1,
-                icon: data.configHome_marker,
+                icon: image,
                 map: map
             });
         }
@@ -44,7 +52,7 @@ function gmapsInitialize(data) {
     if(data.latlngLat2 && data.latlngLng2) {
         latlngobj2 = new google.maps.LatLng(data.latlngLat2, data.latlngLng2);
         // If no custom icon is specified for destination marker
-        if (!data.configDest_marker) {
+        if (!data.configDest_marker_url) {
             marker2 = new google.maps.Marker({
                 position: latlngobj2,
                 map: map
@@ -52,9 +60,17 @@ function gmapsInitialize(data) {
         }
         // If there is a custom icon specified in the configs for destination marker
         else {
+
+            var image2 = {
+                url: data.configDest_marker_url,
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(Math.ceil(data.configDest_marker_horiz_size / 2), data.configDest_marker_vert_size), // The anchor point will automatically be placed at the center of the bottom of the image
+                scaledSize: new google.maps.Size(data.configDest_marker_horiz_size, data.configDest_marker_vert_size)
+            };
+
             marker2 = new google.maps.Marker({
                 position: latlngobj2,
-                icon: data.configDest_marker,
+                icon: image2,
                 map: map
             });
         }
