@@ -1,5 +1,13 @@
+function gmapsInitialize(gmapElement) {
 
-function gmapsInitialize(data) {
+    var data = gmapElement.data();
+    //console.log(data);
+
+    // parameters from addPoint($lat, $lng, $marker_name) function in Gmaps.php
+    // If addPoint is called multiple times, there will be multiple sets of these
+    var latitudes = data.latlnglats.trim().split(", ");
+    var longitudes = data.latlnglngs.trim().split(", ");
+    var markers = data.latlngmarkers.trim().split(", ");
 
     // Generate the mapId
     var mapId = data.base_id + data.map_num;
@@ -13,88 +21,64 @@ function gmapsInitialize(data) {
     // Create the map
     var map = new google.maps.Map(document.getElementById(mapId),mapProp);
 
-    // Attach the map object to the data on the element so other js files can use it
-    $('#' + mapId).data("mapObject", map);
+    // Create array of all the latlng objects for use later
+    var latlngObjectArray = [];
+    // Iterate through the multiple sets of points (if more than one)
+    for(var i = 0; i < markers.length; i++) {
+        var latlngobj;
+        // if a latitude and longitude exist for this entry
+        if(latitudes[i] && longitudes[i]) {
+            //create a latlong object with the lat and lng
+            latlngobj = new google.maps.LatLng(latitudes[i], longitudes[i]);
+            // if this is NOT a custom marker
+            if (!gmapElement.data(markers[i])) {
+                var marker = new google.maps.Marker({
+                    position: latlngobj,
+                    map: map
+                });
+            }// end if NOT custom marker
+            // If there IS a custom icon
+            else {
+                // break the marker info up into an array
+                var markerData = gmapElement.data(markers[i]).split('|');
+                // create icon object
+                var image = {
+                    url: markerData[0],
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(Math.ceil(markerData[1]) / 2, markerData[2]),
+                    scaledSize: new google.maps.Size(markerData[1], markerData[2])
+                };
+                // create marker with custom icon
+                var marker = new google.maps.Marker({
+                    position: latlngobj,
+                    icon: image,
+                    map: map
+                });
+            } //end else custom marker
+            latlngObjectArray.push(latlngobj);
+        } // end if lat and long exist
+    } // end for loop of markers
 
-    // If the origin set of coordinates exist, set the marker
-    var marker1;
-    var latlngobj1;
-    if(data.latlngLat1 && data.latlngLng1) {
-        latlngobj1 = new google.maps.LatLng(data.latlngLat1, data.latlngLng1);
-        // If no custom icon is specified for origin (home) marker
-        if (!data.configOrigin_marker_url) {
-            marker1 = new google.maps.Marker({
-                position: latlngobj1,
-                map: map
-            });
-        }
-        // If there is a custom icon specified in the configs for origin (home) marker
-        else {
-            console.log(data.configOrigin_marker_url + " " + Math.ceil(data.configOrigin_marker_horiz_size / 2) + " " + data.configOrigin_marker_vert_size);
-            var image = {
-                url: data.configOrigin_marker_url,
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(Math.ceil(data.configOrigin_marker_horiz_size / 2), data.configOrigin_marker_vert_size),
-                scaledSize: new google.maps.Size(data.configOrigin_marker_horiz_size, data.configOrigin_marker_vert_size)
-            };
 
-            marker1 = new google.maps.Marker({
-                position: latlngobj1,
-                icon: image,
-                map: map
-            });
-        }
-    } // endif
-
-    // If the destination set of coordinates exist, set the marker
-    var marker2;
-    var latlngobj2;
-    if(data.latlngLat2 && data.latlngLng2) {
-        latlngobj2 = new google.maps.LatLng(data.latlngLat2, data.latlngLng2);
-        // If no custom icon is specified for destination marker
-        if (!data.configDest_marker_url) {
-            marker2 = new google.maps.Marker({
-                position: latlngobj2,
-                map: map
-            });
-        }
-        // If there is a custom icon specified in the configs for destination marker
-        else {
-
-            var image2 = {
-                url: data.configDest_marker_url,
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(Math.ceil(data.configDest_marker_horiz_size / 2), data.configDest_marker_vert_size), // The anchor point will automatically be placed at the center of the bottom of the image
-                scaledSize: new google.maps.Size(data.configDest_marker_horiz_size, data.configDest_marker_vert_size)
-            };
-
-            marker2 = new google.maps.Marker({
-                position: latlngobj2,
-                icon: image2,
-                map: map
-            });
-        }
-    }
     // Resize the map in case the size has changed.
     // This is useful for things like accordions and modals
     google.maps.event.trigger(map, 'resize');
 
     // If two markers exist, set the bounds to focus on them
-    if(latlngobj1 && latlngobj2) {
-        // Set the bounds and auto zoom
+    if(latlngObjectArray.length > 1) {
         var latlngbounds = new google.maps.LatLngBounds();
-        latlngbounds.extend(latlngobj1);
-        latlngbounds.extend(latlngobj2);
 
+        // For every latlng object, extend the bounds to accommodate
+        for(var i = 0; i < latlngObjectArray.length; i++) {
+            // Set the bounds and auto zoom
+            latlngbounds.extend(latlngObjectArray[i]);
+        }
         map.fitBounds(latlngbounds);
     }
     // Else one or no map markers exist, center the map on the one that does, or on the United States
     else {
-        if(latlngobj1) {
-            map.setCenter(marker1.getPosition());
-        }
-        else if(latlngobj2) {
-            map.setCenter(latlngobj2);
+        if(latlngObjectArray[0]) {
+            map.setCenter(latlngObjectArray[0]);
             map.setZoom(data.configZoom);
         }
         else {
@@ -121,8 +105,7 @@ var scriptPromise = $.ajax({
 scriptPromise.done(function() {
 
     gmaps.each(function() {
-        var data = $(this).data();
-        gmapsInitialize(data);
+        gmapsInitialize($(this));
     });
 });
 scriptPromise.fail(function(){ console.log("Google maps API failed to load"); });
