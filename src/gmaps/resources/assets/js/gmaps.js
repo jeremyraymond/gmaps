@@ -8,6 +8,7 @@ function gmapsInitialize(gmapElement) {
     var latitudes = data.latlnglats.trim().split(", ");
     var longitudes = data.latlnglngs.trim().split(", ");
     var markers = data.latlngmarkers.trim().split(", ");
+    var info_content = data.latlngcontent.split("***** ");
 
     // Generate the mapId
     var mapId = data.base_id + data.map_num;
@@ -23,6 +24,8 @@ function gmapsInitialize(gmapElement) {
 
     // Create array of all the latlng objects for use later
     var latlngObjectArray = [];
+    // Create array of all the marker objects
+    var markerObjectArray = [];
     // Iterate through the multiple sets of points (if more than one)
     for(var i = 0; i < markers.length; i++) {
         var latlngobj;
@@ -32,9 +35,10 @@ function gmapsInitialize(gmapElement) {
             latlngobj = new google.maps.LatLng(latitudes[i], longitudes[i]);
             // if this is NOT a custom marker
             if (!gmapElement.data(markers[i])) {
-                var marker = new google.maps.Marker({
+                markerObjectArray[i] = new google.maps.Marker({
                     position: latlngobj,
-                    map: map
+                    map: map,
+                    optimized: false
                 });
             }// end if NOT custom marker
             // If there IS a custom icon
@@ -45,16 +49,32 @@ function gmapsInitialize(gmapElement) {
                 var image = {
                     url: markerData[0],
                     origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(Math.ceil(markerData[1]) / 2, markerData[2]),
+                    anchor: new google.maps.Point(Math.ceil(markerData[1] / 2), markerData[2]),
                     scaledSize: new google.maps.Size(markerData[1], markerData[2])
                 };
                 // create marker with custom icon
-                var marker = new google.maps.Marker({
+                markerObjectArray[i] = new google.maps.Marker({
                     position: latlngobj,
                     icon: image,
-                    map: map
+                    map: map,
+                    optimized: false
                 });
             } //end else custom marker
+            //If there's info window content for this marker
+            if(info_content[i].trim()) {
+                // Create infowindow object with the corresponding content
+                console.log(info_content[i]);
+                var infowindow = new google.maps.InfoWindow({
+                    content: info_content[i]
+                });
+                // Add the infowindow to the marker
+                // Needs an IIFE to carry the variables into the anonymous function
+                (function(innermap, innerinfowindow, markerObject) {
+                    markerObject.addListener('click', function () {
+                        innerinfowindow.open(innermap, markerObject);
+                    });
+                })(map, infowindow, markerObjectArray[i]);
+            }
             latlngObjectArray.push(latlngobj);
         } // end if lat and long exist
     } // end for loop of markers
