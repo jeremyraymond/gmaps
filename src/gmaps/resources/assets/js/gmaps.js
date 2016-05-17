@@ -1,7 +1,6 @@
 function gmapsInitialize(gmapElement) {
 
     var data = gmapElement.data();
-    //console.log(data);
 
     // parameters from addPoint($lat, $lng, $marker_name) function in Gmaps.php
     // If addPoint is called multiple times, there will be multiple sets of these
@@ -63,7 +62,6 @@ function gmapsInitialize(gmapElement) {
             //If there's info window content for this marker
             if(info_content[i].trim()) {
                 // Create infowindow object with the corresponding content
-                console.log(info_content[i]);
                 var infowindow = new google.maps.InfoWindow({
                     content: info_content[i]
                 });
@@ -89,9 +87,9 @@ function gmapsInitialize(gmapElement) {
         var latlngbounds = new google.maps.LatLngBounds();
 
         // For every latlng object, extend the bounds to accommodate
-        for(var i = 0; i < latlngObjectArray.length; i++) {
+        for(var j = 0; j < latlngObjectArray.length; j++) {
             // Set the bounds and auto zoom
-            latlngbounds.extend(latlngObjectArray[i]);
+            latlngbounds.extend(latlngObjectArray[j]);
         }
         map.fitBounds(latlngbounds);
     }
@@ -111,21 +109,40 @@ function gmapsInitialize(gmapElement) {
 
 // Get elements that match class="gmap"
 var gmaps = $('.gmap');
-// Get the configKey from the data attribute (this will be the same for all of them)
-var configKey = gmaps.data( "configKey" );
-// Make a synchronized ajax call to get the Google Maps API and return a promise object
-var scriptPromise = $.ajax({
-    async: false,
-    url: "https://maps.googleapis.com/maps/api/js?key=" + configKey,
-    dataType: "script",
-    cache: true,
-    error: function() { console.log("ajax failure"); }
-});
-// On promise completion, loop through each map element and call the initialize function with data as the param
-scriptPromise.done(function() {
-
-    gmaps.each(function() {
-        gmapsInitialize($(this));
+if(gmaps.length > 0) {
+    // Get the configKey from the data attribute (this will be the same for all of them)
+    var configKey = gmaps.data("configKey");
+    // Make a synchronized ajax call to get the Google Maps API and return a promise object
+    var scriptPromise;
+    if(configKey) {
+        scriptPromise = $.ajax({
+            async: false,
+            url: "https://maps.googleapis.com/maps/api/js?key=" + configKey,
+            dataType: "script",
+            cache: true,
+            error: function () {
+                console.log("ajax failure");
+            }
+        });
+    }
+    else {
+        scriptPromise = $.ajax({
+            async: false,
+            url: "https://maps.googleapis.com/maps/api/js",
+            dataType: "script",
+            cache: true,
+            error: function () {
+                console.log("ajax failure");
+            }
+        });
+    }
+    // On promise completion, loop through each map element and call the initialize function with data as the param
+    scriptPromise.done(function () {
+        gmaps.each(function () {
+            gmapsInitialize($(this));
+        });
     });
-});
-scriptPromise.fail(function(){ console.log("Google maps API failed to load"); });
+    scriptPromise.fail(function () {
+        console.log("Google maps API failed to load");
+    });
+}

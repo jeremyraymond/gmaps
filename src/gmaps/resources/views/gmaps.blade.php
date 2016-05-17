@@ -11,8 +11,8 @@
         @endforeach
         @endif
 
-        data-latlngLats="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['lat'] }}@if($i < count($latlngArray) - 1),@endif @endfor"
-        data-latlngLngs="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['lng'] }}@if($i < count($latlngArray) - 1),@endif @endfor"
+        data-latlngLats="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['lat'] }}@if($i < count($latlngArray) - 1)@if(!empty($latlngArray[$i]['lat'])),@endif @endif @endfor"
+        data-latlngLngs="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['lng'] }}@if($i < count($latlngArray) - 1)@if(!empty($latlngArray[$i]['lat'])),@endif @endif @endfor"
         data-latlngMarkers="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['marker_name'] }}@if($i < count($latlngArray) - 1),@endif @endfor"
         data-latlngContent="@for($i = 0; $i < count($latlngArray); $i++){{ $latlngArray[$i]['info_content'] }}@if($i < count($latlngArray) - 1)*****@endif @endfor"
 >
