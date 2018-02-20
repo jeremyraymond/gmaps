@@ -2,7 +2,15 @@
         class="gmap"
         data-base_id="{{ $config['base_id'] }}"
         data-map_num="{{ $map_num }}"
+        @if(!empty($config['key']))
         data-config-key="{{ $config['key'] }}"
+        @endif
+        @if(!empty($config['client']))
+        data-config-client="{{ $config['client'] }}"
+        @endif
+        @if(!empty($config['channel']))
+        data-config-channel="{{ $config['channel'] }}"
+        @endif
         data-config-zoom="{{ $config['zoom'] }}"
 
         @if(!empty($config['markers']))
